@@ -22,7 +22,6 @@ permissions:
 env:
   AZURE_TENANT_ID: "${{ secrets.AZURE_TENANT_ID }}"
   AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-  AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
   TerraformBackendResourceGroup: "juan-gil-tf"
   TerraformBackendStorageAccount: "tfstatest00"
   TerraformBackendStorageContainer: "${{ inputs.tf-composition }}-${{ inputs.cluster }}"
@@ -31,6 +30,7 @@ env:
 jobs:
   pre_commit_validate:
     runs-on: ubuntu-latest
+    environment: ${{ inputs.cluster }}
     name: "Verify"
     defaults:
       run:
@@ -62,6 +62,21 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+      - name: Load Application ID secret
+        env:
+          AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+        run: |
+          if [ -n "$AZURE_CLIENT_ID" ]; then
+            echo "Confirmed, Client ID is loaded"
+          else
+            echo "Client ID not existing" && exit 1
+          fi
+      - name: 🛂 AzureCLI Login
+        uses: azure/login@v1
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION }}
       - name: Install Terraform
         id: install
         run: |
@@ -99,6 +114,21 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
+      - name: Load Application ID secret
+        env:
+          AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+        run: |
+          if [ -n "$AZURE_CLIENT_ID" ]; then
+            echo "Confirmed, Client ID is loaded"
+          else
+            echo "Client ID not existing" && exit 1
+          fi
+      - name: 🛂 AzureCLI Login
+        uses: azure/login@v1
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION }}
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v2
         with:
