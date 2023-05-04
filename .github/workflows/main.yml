@@ -157,5 +157,5 @@ jobs:
         shell: bash
 
       - name: Terraform Apply
-        run: terraform apply -auto-approve
+        run: terraform apply -var-file=${{ inputs.cluster }}.tfvars -input=false -auto-approve
         working-directory: "./${{ inputs.tf-composition }}"
