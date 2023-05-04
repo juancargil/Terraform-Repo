@@ -8,7 +8,7 @@ on:
         description: "Directory where the Terraform composition is located."
         required: true
         options:
-          - "tfaks"
+          - "tf-aks"
       cluster:
         type: choice
         description: "Cluster Tfvars file to run"
