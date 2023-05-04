@@ -63,13 +63,13 @@ jobs:
     defaults:
       run:
         shell: bash
+    env:
+      ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
     steps:
       - name: Checkout
         uses: actions/checkout@v3
 
       - name: Load Application ID secret
-        env:
-          ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
         run: |
           if [ -n "$ARM_CLIENT_ID" ]; then
             echo "Confirmed, Client ID is loaded"
@@ -97,8 +97,6 @@ jobs:
 
       - name: Terraform Init
         id: init
-        env:
-          ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
         run: terraform init -backend-config=storage_account_name="$TerraformBackendStorageAccount" -backend-config=container_name="$TerraformBackendStorageContainer" -backend-config=key="$TerraformBackendStorageKey" -backend-config=resource_group_name="$TerraformBackendResourceGroup"
         working-directory: "./${{ inputs.tf-composition }}"
         shell: bash
@@ -128,12 +126,12 @@ jobs:
     defaults:
       run:
         shell: bash
+    env:
+      ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
     steps:
       - name: Checkout
         uses: actions/checkout@v2
       - name: Load Application ID secret
-        env:
-          ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
         run: |
           if [ -n "$AZURE_CLIENT_ID" ]; then
             echo "Confirmed, Client ID is loaded"
@@ -153,8 +151,6 @@ jobs:
 
       - name: Terraform Init
         id: init
-        env:
-          ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
         run: terraform init backend-config=storage_account_name="$TerraformBackendStorageAccount" -backend-config=container_name="$TerraformBackendStorageContainer" -backend-config=key="$TerraformBackendStorageKey" -backend-config=resource_group_name="$TerraformBackendResourceGroup"
         working-directory: "./${{ inputs.tf-composition }}"
 
