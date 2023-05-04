@@ -48,7 +48,7 @@ jobs:
 
       - name: Validate remote backend
         working-directory: "./${{ inputs.tf-composition }}"
-        run: cat versions.tf | grep -P '^  backend "azurerm" {}$'
+        run: cat versions.tf | grep -P '^  backend "azurerm" {$'
 
       - name: Terraform fmt
         id: fmt
