@@ -71,7 +71,7 @@ jobs:
         env:
           ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
         run: |
-          if [ -n "$AZURE_CLIENT_ID" ]; then
+          if [ -n "$ARM_CLIENT_ID" ]; then
             echo "Confirmed, Client ID is loaded"
           else
             echo "Client ID not existing" && exit 1
