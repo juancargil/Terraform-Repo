@@ -86,7 +86,7 @@ jobs:
           sudo apt install terraform
       - name: Terraform Init
         id: init
-        run: terraform init -backend-config=storage_account_name="$TerraformBackendStorageAccount" -backend-config=container_name="$TerraformBackendStorageContainer" -backend-config=key="$TerraformBackendStorageKey" -backend-config=resource_group_name="$TerraformBackendResourceGroup"
+        run: terraform init -backend-config=storage_account_name="$TerraformBackendStorageAccount" -backend-config=container_name="$TerraformBackendStorageContainer" -backend-config=key="$TerraformBackendStorageKey" -backend-config=resource_group_name="$TerraformBackendResourceGroup" -backend-config=use_msi="true"
         working-directory: "./${{ inputs.tf-composition }}"
         shell: bash
       - name: Terraform Validate
