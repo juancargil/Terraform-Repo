@@ -30,7 +30,6 @@ env:
 jobs:
   pre_commit_validate:
     runs-on: ubuntu-latest
-    environment: ${{ inputs.cluster }}
     name: "Verify"
     defaults:
       run:
@@ -54,6 +53,7 @@ jobs:
 
   terraform_plan:
     runs-on: ubuntu-latest
+    environment: ${{ inputs.cluster }}
     name: "Terraform Plan"
     needs: [pre_commit_validate]
     defaults:
