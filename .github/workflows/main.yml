@@ -97,6 +97,8 @@ jobs:
 
       - name: Terraform Init
         id: init
+        env:
+          ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
         run: terraform init -backend-config=storage_account_name="$TerraformBackendStorageAccount" -backend-config=container_name="$TerraformBackendStorageContainer" -backend-config=key="$TerraformBackendStorageKey" -backend-config=resource_group_name="$TerraformBackendResourceGroup"
         working-directory: "./${{ inputs.tf-composition }}"
         shell: bash
@@ -151,6 +153,8 @@ jobs:
 
       - name: Terraform Init
         id: init
+        env:
+          ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
         run: terraform init backend-config=storage_account_name="$TerraformBackendStorageAccount" -backend-config=container_name="$TerraformBackendStorageContainer" -backend-config=key="$TerraformBackendStorageKey" -backend-config=resource_group_name="$TerraformBackendResourceGroup"
         working-directory: "./${{ inputs.tf-composition }}"
 
