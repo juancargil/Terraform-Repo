@@ -21,8 +21,6 @@ permissions:
   id-token: write
 
 env:
-  AZURE_TENANT_ID: "${{ secrets.AZURE_TENANT_ID }}"
-  AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
   ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
   ARM_TENANT_ID: "${{ secrets.AZURE_TENANT_ID }}"
   TerraformBackendResourceGroup: "juan-gil-tf"
@@ -40,15 +38,18 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+
       - name: Install Terraform
         id: install
         run: |
           curl -fsSL https://apt.releases.hashicorp.com/gpg | sudo apt-key add -
           sudo apt-add-repository "deb [arch=$(dpkg --print-architecture)] https://apt.releases.hashicorp.com $(lsb_release -cs) main"
           sudo apt install terraform
+
       - name: Validate remote backend
         working-directory: "./${{ inputs.tf-composition }}"
         run: cat versions.tf | grep -P '^  backend "azurerm" {}$'
+
       - name: Terraform fmt
         id: fmt
         run: terraform fmt -check
@@ -65,9 +66,9 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+
       - name: Load Application ID secret
         env:
-          AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
           ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
         run: |
           if [ -n "$AZURE_CLIENT_ID" ]; then
@@ -75,32 +76,42 @@ jobs:
           else
             echo "Client ID not existing" && exit 1
           fi
+
       - name: 🛂 AzureCLI Login
         uses: azure/login@v1
         with:
           client-id: ${{ secrets.AZURE_CLIENT_ID }}
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Run Az Command for Test
+        run: |
+          az account show
+
       - name: Install Terraform
         id: install
         run: |
           curl -fsSL https://apt.releases.hashicorp.com/gpg | sudo apt-key add -
           sudo apt-add-repository "deb [arch=$(dpkg --print-architecture)] https://apt.releases.hashicorp.com $(lsb_release -cs) main"
           sudo apt install terraform
+
       - name: Terraform Init
         id: init
-        run: terraform init -backend-config=storage_account_name="$TerraformBackendStorageAccount" -backend-config=container_name="$TerraformBackendStorageContainer" -backend-config=key="$TerraformBackendStorageKey" -backend-config=resource_group_name="$TerraformBackendResourceGroup" -backend-config=use_msi="true"
+        run: terraform init -backend-config=storage_account_name="$TerraformBackendStorageAccount" -backend-config=container_name="$TerraformBackendStorageContainer" -backend-config=key="$TerraformBackendStorageKey" -backend-config=resource_group_name="$TerraformBackendResourceGroup"
         working-directory: "./${{ inputs.tf-composition }}"
         shell: bash
+
       - name: Terraform Validate
         id: validate
         run: terraform validate
+
       - name: Terraform Plan
         id: plan
         run: |
           terraform plan -var-file=${{ inputs.cluster }}.tfvars -input=false -out tf.plan
         working-directory: "./${{ inputs.tf-composition }}"
         shell: bash
+
       - name: Terraform Show
         id: show
         run: terraform show tf.plan 2>&1 > /tmp/plan.txt
@@ -120,7 +131,6 @@ jobs:
         uses: actions/checkout@v2
       - name: Load Application ID secret
         env:
-          AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
           ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
         run: |
           if [ -n "$AZURE_CLIENT_ID" ]; then
@@ -128,20 +138,22 @@ jobs:
           else
             echo "Client ID not existing" && exit 1
           fi
+
       - name: 🛂 AzureCLI Login
         uses: azure/login@v1
         with:
           client-id: ${{ secrets.AZURE_CLIENT_ID }}
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v2
-        with:
-          terraform_version: ${{ inputs.terraform-version }}
+
       - name: Terraform Init
         id: init
         run: terraform init backend-config=storage_account_name="$TerraformBackendStorageAccount" -backend-config=container_name="$TerraformBackendStorageContainer" -backend-config=key="$TerraformBackendStorageKey" -backend-config=resource_group_name="$TerraformBackendResourceGroup"
         working-directory: "./${{ inputs.tf-composition }}"
+
         shell: bash
       - name: Terraform Apply
         run: terraform apply -auto-approve
